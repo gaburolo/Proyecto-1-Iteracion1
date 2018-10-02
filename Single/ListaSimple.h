@@ -11,173 +11,180 @@ class Lista {
    class Nodo {
      public:
       // Constructor:
-      Nodo(const DATON dat, Nodo<DATON> *sig) : dato(dat), siguiente(sig) {}
-      // Miembros:
-      DATON dato;
-      Nodo<DATON> *siguiente;
+      Nodo(const DATON dat, Nodo<DATON> *sig) : data(dat), next(sig) {}
+      // Attributes
+      DATON data;
+      Nodo<DATON> *next;
    };
 
-   // Punteros de la lista, para cabeza y nodo actual:
-   Nodo<DATO> *primero;
-   Nodo<DATO> *actual;
+   // Pointers of list for node first and current:
+   Nodo<DATO> *first;
+   Nodo<DATO> *current;
 
   public:
-   // Constructor y destructor básicos:
-   Lista() : primero(NULL), actual(NULL) {}
+   // Constructor y destructor:
+   Lista() : first(NULL), current(NULL) {}
    ~Lista();
-   // Funciones de inserción:
-   void InsertarFinal(const DATO dat);
-   void InsertarPrincipio(const DATO dat);
-   bool InsertarActual(const DATO dat);
-   void Insertar(const DATO dat);
-   // Funciones de borrado:
-   void BorrarActual();
+   // Insert Functions:
+   void FinaInsert(const DATO dat);
+   void InsertFirst(const DATO dat);
+   bool CurrentInsert(const DATO dat);
+   void InserPos(const DATO dat, int pos);
+   void Insert(const DATO dat);
+   // Delete Function:
+   void Delete_Pos(int pos);
+   void DeleteCurrent();
+   // Check if the list is empty:
+   bool Empty() { return first==NULL; }
+   // Get data in current node:
+   DATO &CurrentValue() { return current->data; }
+   // Current node is a first:
+   void First() { current = first; }
+   // Check current node is valid:
+   bool Curret() { return current != NULL; }
+   // Current node point next node:
+   void Next() {
+      if(current) {
 
-
-   // Comprobar si la lista está vacía:
-   bool Vacia() { return primero==NULL; }
-   // Devolver referencia al dato del nodo actual:
-   DATO &ValorActual() { return actual->dato; }
-   // Hacer que el nodo actual sea el primero:
-   void Primero() { actual = primero; }
-   // Comprobar si el nodo actual es válido:
-   bool Actual() { return actual != NULL; }
-   // Moverse al siguiente nodo de la lista:
-   void Siguiente() {
-      if(actual) {
-
-         actual = actual->siguiente;
+         current = current->next;
       }
    }
-   // Sobrecargar operator++ en forma sufija para los mismo:
-   void operator++(int) { Siguiente(); }
-   // Aplicar una función a cada elemento de la lista:
-   void ParaCada(void (*func)(DATO&));
-   DATO get_Dato(int pos);
-   void insertar_pos(const DATO dat,int pos);
-   void cambiarDatPos(const DATO dat, int pos);
+   // Overload operator++:
+   void operator++(int) { Next(); }
+   // Apply function to each node:
+   void ForEach(void (*func)(DATO &));
+   //Get Node in determined position
+   DATO get_Data(int pos);
+
+   //Change data in determined position
+   void ChangeDataPos(const DATO dat, int pos);
+   //Get position in list, whit ID
+   DATO SearchData(int ID);
+
+
+
 };
 
-//////// Implementación:
+//////// Implementaciï¿½n:
 
 // Destructor
 template<class DATO>
 Lista<DATO>::~Lista()
 {
-   while(!Vacia()) {
-      actual = primero;
-      primero = primero->siguiente;
-      delete actual;
+   while(!Empty()) {
+      current = first;
+      first = first->next;
+      delete current;
    }
 }
 
 template<class DATO>
-void Lista<DATO>::InsertarFinal(const DATO dat)
+void Lista<DATO>::FinaInsert(const DATO dat)
 {
    Nodo<DATO> *ultimo;
 
-   // Si la lista está vacía, insertar al principio:
-   if(Vacia()) InsertarPrincipio(dat);
-   else { // Si no lo está:
-      // Buscar el último nodo:
-      ultimo = primero;
-      while(ultimo->siguiente) ultimo = ultimo->siguiente;
-      // Insertar a continuación:
-      ultimo->siguiente = new Nodo<DATO>(dat, NULL);
+   // Si la lista estï¿½ vacï¿½a, insertar al principio:
+   if(Empty()) InsertFirst(dat);
+   else { // Si no lo estï¿½:
+      // Buscar el ï¿½ltimo nodo:
+      ultimo = first;
+      while(ultimo->next) ultimo = ultimo->next;
+      // Insert a continuaciï¿½n:
+      ultimo->next = new Nodo<DATO>(dat, NULL);
    }
 }
 
 template<class DATO>
-void Lista<DATO>::InsertarPrincipio(const DATO dat)
+void Lista<DATO>::InsertFirst(const DATO dat)
 {
-   primero = new Nodo<DATO>(dat, primero);
+   first = new Nodo<DATO>(dat, first);
 }
 
 template<class DATO>
-bool Lista<DATO>::InsertarActual(const DATO dat)
+bool Lista<DATO>::CurrentInsert(const DATO dat)
 {
-   // Sólo si la lista no está vacía y actual es válido:
-   if(!Vacia() && actual) {
-      actual->siguiente = new Nodo<DATO>(dat, actual->siguiente);
+   // Sï¿½lo si la lista no estï¿½ vacï¿½a y current es vï¿½lido:
+   if(!Empty() && current) {
+      current->next = new Nodo<DATO>(dat, current->next);
       return true;
    }
    // Si no se puede insertar, retornar con false:
    return false;
 }
 
-// Insertar ordenadamente:
+// Insert ordenadamente:
 template<class DATO>
-void Lista<DATO>::Insertar(const DATO dat)
+void Lista<DATO>::Insert(const DATO dat)
 {
-   Nodo<DATO> *temp = primero;
+   Nodo<DATO> *temp = first;
    Nodo<DATO> *anterior = NULL;
 
-   // Si la lista está vacía, insertar al principio:
-   if(Vacia()) InsertarPrincipio(dat);
+   // Si la lista estï¿½ vacï¿½a, insertar al principio:
+   if(Empty()) InsertFirst(dat);
    else {
-      // Buscar el nodo anterior al primer nodo con un dato mayor qur 'dat'
-      while(temp && temp->dato < dat) {
+      // Buscar el nodo anterior al primer nodo con un data mayor qur 'dat'
+      while(temp && temp->data < dat) {
          anterior = temp;
-         temp = temp->siguiente;
+         temp = temp->next;
       }
       // Si no hay anterior, insertar al principio,
       // nuestro valor es el menor de la lista:
       if(!anterior)
-         InsertarPrincipio(dat);
-      else // Insertar:
-         anterior->siguiente = new Nodo<DATO>(dat, temp);
+          InsertFirst(dat);
+      else // Insert:
+         anterior->next = new Nodo<DATO>(dat, temp);
    }
 }
 
 template<class DATO>
-void Lista<DATO>::BorrarActual()
+void Lista<DATO>::DeleteCurrent()
 {
    Nodo<DATO> *anterior;
 
-   // Si el nodo actual es el primero:
-   if(actual && actual == primero) {
-      // El primer nodo será ahora el segundo:
-      // Sacar el nodo actual de la lista:
-      primero = actual->siguiente;
+   // Si el nodo current es el first:
+   if(current && current == first) {
+      // El primer nodo serï¿½ ahora el segundo:
+      // Sacar el nodo current de la lista:
+      first = current->next;
       // Borrarlo:
-      delete actual;
-      actual = NULL;
+      delete current;
+      current = NULL;
    } else
-   if(actual && !Vacia()) {
-      // Buscar el nodo anterior al actual:
-      anterior = primero;
-      while(anterior && anterior->siguiente != actual)
-         anterior = anterior->siguiente;
-      // Sacar el nodo actual de la lista:
-      anterior->siguiente = actual->siguiente;
+   if(current && !Empty()) {
+      // Buscar el nodo anterior al current:
+      anterior = first;
+      while(anterior && anterior->next != current)
+         anterior = anterior->next;
+      // Sacar el nodo current de la lista:
+      anterior->next = current->next;
       // Borrarlo:
-      delete actual;
-      actual = NULL;
+      delete current;
+      current = NULL;
    }
 }
 
-// Aplicar una función a cada nodo de la lista:
+// Aplicar una funciï¿½n a cada nodo de la lista:
 template<class DATO>
-void Lista<DATO>::ParaCada(void (*func)(DATO&))
+void Lista<DATO>::ForEach(void (*func)(DATO &))
 {
-   Nodo<DATO> *temp = primero;
+   Nodo<DATO> *temp = first;
 
    // Recorrer la lista:
    while(temp) {
-      // Aplicar la función:
-      func(temp->dato);
-      temp = temp->siguiente;
+      // Aplicar la funciï¿½n:
+      func(temp->data);
+      temp = temp->next;
    }
 }
 template <class DATO>
-DATO Lista<DATO>::get_Dato(int pos){
-   Nodo<DATO> *temp = primero;
+DATO Lista<DATO>::get_Data(int pos){
+   Nodo<DATO> *temp = first;
    int i=0;
    while(temp){
       if(i==pos){
-         return temp->dato;
+         return temp->data;
       }else{
-         temp=temp->siguiente;
+         temp=temp->next;
 
       }i++;
 
@@ -185,31 +192,69 @@ DATO Lista<DATO>::get_Dato(int pos){
 
 }
 template <class DATO>
-void Lista<DATO>::insertar_pos(const DATO dat,int pos) {
+void Lista<DATO>::InserPos(const DATO dat, int pos) {
 
    int i=0;
-   this->Primero();
+    this->First();
    while(i<pos-1){
 
-      this->Siguiente();
+       this->Next();
 
       i++;
-   }InsertarActual(dat);
+   }
+    CurrentInsert(dat);
 }
 
 template <class DATO>
-void Lista<DATO>::cambiarDatPos(const DATO dat, int pos) {
+void Lista<DATO>::ChangeDataPos(const DATO dat, int pos) {
     int i=0;
-    this->Primero();
+    this->First();
     while(i<pos){
 
-        this->Siguiente();
+        this->Next();
 
         i++;
     }
-    InsertarActual(dat);
-    BorrarActual();
+    CurrentInsert(dat);
+    DeleteCurrent();
 }
+
+
+template <class DATO>
+DATO Lista<DATO>::SearchData(int ID){
+   Nodo<DATO> *temp = first;
+
+   int i=0;
+   while(temp){
+
+      if(temp->data==ID){
+
+         return i;
+      }else{
+
+         temp=temp->next;
+
+      }i++;
+
+   }
+}
+template <class DATO>
+void Lista<DATO>::Delete_Pos(int pos){
+   int i=0;
+    this->First();
+   while(i<pos){
+
+       this->Next();
+
+      i++;
+   }
+
+    DeleteCurrent();
+
+}
+
+
+
 
 
 #endif

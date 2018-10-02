@@ -1,5 +1,6 @@
 //
-// Created by gaburolo on 24/9/2018.
+// Created by Martin Calderon and Olman Castro
+//
 
 #ifndef PROYECTO_MPOINTERGC_H
 #define PROYECTO_MPOINTERGC_H
@@ -10,7 +11,11 @@
 #include "ListaSimple.h"
 
 
-
+/**
+ * Print Elements
+ * @tparam pr template
+ * @param d data
+ */
 template <class pr>
 void Show(pr &d){
     std::cout<<d<<",";
@@ -23,28 +28,31 @@ class MPointerGC {
 
 private:
     static int pivot;
-    static MPointerGC<pt>* s_instancia;
+    static MPointerGC<pt> *s_instancia;
 public:
     /**
      * Destroyer
      */
-    ~MPointerGC(){
+    ~MPointerGC() {
 
     }
+
     /**
      * Create a unique object
      * @return instance
      */
-    static MPointerGC<pt>& Instance(){
+    static MPointerGC<pt> &Instance() {
 
 
-        return  *s_instancia;
+        return *s_instancia;
     }
+
     /**
      * Prevents another object from being created
      */
-    MPointerGC(const MPointerGC<pt>&)= default;
-    MPointerGC<pt>& operator=(const MPointerGC<pt>&)=delete;
+    MPointerGC(const MPointerGC<pt> &) = default;
+
+    MPointerGC<pt> &operator=(const MPointerGC<pt> &) = delete;
 
     /**
      * Add an element to the list
@@ -52,46 +60,79 @@ public:
      * Example: MPointe<int>
      * @return int pivot
      */
-    int AddElement(pt point){
-         list.InsertarFinal(point);
+    int AddElement(pt point) {
+        long id = (((long) point) % 10000);
 
+        list_IDs.FinaInsert((int) id);
 
-         pivot+=1;
-         return pivot-1;
+        list.FinaInsert(point);
+
+        return (int) id;
     }
+
     /**
      * Draw all elements in list
      */
-    static void Draw(){
-        list.ParaCada(Show);
+    static void Draw() {
+        list.ForEach(Show);
     }
+
+    /**
+     * Search with ID
+     * Get Data
+     * @param ID int ID pointer
+     * @return pt DATA
+     * Example: MPointe<int>
+     */
+    static pt getElementPos(int ID) {
+        int pos = list_IDs.SearchData(ID);
+
+        return list.get_Data(pos);
+    }
+
+    /**
+     * Delete ELement in Position
+     * SearchData(ID)
+     * Get position
+     * @param ID int ID pointer
+     */
+    static void Delete(int ID) {
+        int pos = list_IDs.SearchData(ID);
+
+
+        list_IDs.Delete_Pos(pos);
+
+        list.Delete_Pos(pos);
+    }
+
+
     /**
      * Get data in a certain position
      * @param pos int Position
      * @return data or element
      * Example: MPointe<int>
      */
-    static pt getElementPos(int pos){
+    static pt get(int pos){
+        return list.get_Data(pos);
 
-        return list.get_Dato(pos);
     }
-
-
 private:
     /**
      * Constructor
     */
     MPointerGC(){
 
-         pivot=0;
+
     }
     //Attributes
     static Lista<pt> list;
+    static Lista<int>list_IDs;
 
 
 };
+//Declarations
 template<class pt>
-int MPointerGC<pt>::pivot=0;
+Lista<int> MPointerGC<pt>::list_IDs;
 
 template<class pt>
 Lista<pt> MPointerGC<pt>::list;

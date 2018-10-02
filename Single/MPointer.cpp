@@ -1,7 +1,6 @@
 //
-// Created by gaburolo on 22/9/2018.
-//}
-
+// Created by Martin Calderon and Olman Castro
+//
 #include <iostream>
 
 #include <typeinfo>
@@ -16,8 +15,10 @@ class MPointer {
 private:
     //Attributes
     T value ;
-
+    bool ready=false;
     int ID;
+    int cont_ref=0;
+
     bool cont=false;
     MPointer<T> *pointer;
 
@@ -49,15 +50,17 @@ public:
             MPointerGC<MPointer<T>*>& pointerGC= MPointerGC<MPointer<T> *>::Instance();
             pointer=this;
 
+
             ID=pointerGC.AddElement(pointer);
             cont=true;
-
+            ready= true;
         }
 
 
     }
 
      static MPointer<T> New(){
+
 
 
     }
@@ -68,9 +71,18 @@ public:
      * Example: 6
      */
     T& operator *() {
+        if(ready==false){
+            cont_ref=1;
+            Upgrade();
+            return value;
+        }if(pointer->getCont_ref()>1){
 
-        Upgrade();
-        //return value;
+            pointer->setCont_ref(pointer->getCont_ref()-1);
+            cont_ref=1;
+            Upgrade();
+            return value;
+        }
+
     }
 
     /**
@@ -97,10 +109,26 @@ public:
      */
     MPointer<T> operator =(MPointer<T> point){
 
-        if(typeid(value)== typeid(point.value)){
-            pointer=point.pointer;
-            ID=point.getID();
+        if(typeid(value)== typeid(point.value)&& point.pointer!=pointer){
+            if(ready==false){
+                cont_ref=1;
+                pointer=point.pointer;
+                ID=point.getID();
 
+                value=point.value;
+                pointer->setCont_ref(pointer->getCont_ref()+1);
+
+
+            }else{
+                MPointerGC<MPointer<T>*>& pointerGC= MPointerGC<MPointer<T> *>::Instance();
+                pointerGC.Delete(this->getID());
+                pointer=point.pointer;
+                ID=point.getID();
+                value=point.value;
+                cont= false;
+
+                pointer->setCont_ref(pointer->getCont_ref()+1);
+            }
 
             return point;
 
@@ -114,11 +142,39 @@ public:
      * @return
      */
     MPointer<T> operator =(T mPointer){
+        if(mPointer==NULL){
 
-        if(typeid(value)== typeid(mPointer)){
+            if(ready==true&&pointer->getCont_ref()>1){
 
-            value=mPointer;
-            Upgrade();
+                pointer->setCont_ref(pointer->getCont_ref()-1);
+                ID=0;
+                value=0;
+            }else{
+                cont_ref=0;
+
+                MPointerGC<MPointer<T>*>& pointerGC= MPointerGC<MPointer<T> *>::Instance();
+                pointerGC.Delete(this->getID());
+            }
+
+        }
+
+        else if(typeid(value)== typeid(mPointer)){
+            if(ready==false){
+                this->setCont_ref(1);
+
+                value=mPointer;
+
+                Upgrade();
+            }
+            else if(pointer->getCont_ref()>1){
+                pointer->setCont_ref(pointer->getCont_ref()-1);
+                this->setCont_ref(1);
+
+                value=mPointer;
+
+                Upgrade();
+            }
+
             std::cout<<"El value a igualar es del mismo tipo del value base del puntero"<<std::endl;
         }
 
@@ -152,9 +208,16 @@ public:
         MPointer::ID = ID;
     }
 
+    int getCont_ref() const {
+        return cont_ref;
+    }
+
+    void setCont_ref(int cont_ref) {
+        MPointer::cont_ref = cont_ref;
+    }
+
 
 
 
 };
-
 
