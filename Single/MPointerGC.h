@@ -8,7 +8,7 @@
 
 
 #include <iostream>
-#include "ListaSimple.h"
+#include "ListaDoble.h"
 
 
 /**
@@ -84,7 +84,7 @@ public:
      * @return pt DATA
      * Example: MPointe<int>
      */
-    static pt getElementPos(int ID) {
+    static pt getElementID(int ID) {
         int pos = list_IDs.SearchData(ID);
 
         return list.get_Data(pos);
@@ -114,7 +114,6 @@ public:
      */
     static pt get(int pos){
         return list.get_Data(pos);
-
     }
 private:
     /**

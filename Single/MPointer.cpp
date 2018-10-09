@@ -1,6 +1,8 @@
 //
 // Created by Martin Calderon and Olman Castro
 //
+#ifndef MPOINTER_CPP
+#define MPOINTER_CPP
 #include <iostream>
 
 #include <typeinfo>
@@ -71,15 +73,19 @@ public:
      * Example: 6
      */
     T& operator *() {
+
         if(ready==false){
+
             cont_ref=1;
             Upgrade();
             return value;
-        }if(pointer->getCont_ref()>1){
+        }else if(pointer->getCont_ref()>1){
 
             pointer->setCont_ref(pointer->getCont_ref()-1);
             cont_ref=1;
             Upgrade();
+            return value;
+        }else{
             return value;
         }
 
@@ -221,3 +227,4 @@ public:
 
 };
 
+#endif

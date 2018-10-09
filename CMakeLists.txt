@@ -5,4 +5,4 @@ set(D_GLICBCXX_USE_CXX11_ABI 0)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(proyecto main.cpp)
+add_executable(proyecto main.cpp Sort/Bubblesort.cpp Sort/InsertSort.cpp)
